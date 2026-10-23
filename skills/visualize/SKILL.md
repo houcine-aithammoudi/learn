@@ -1,11 +1,11 @@
 ---
 name: visualize
-description: "Add a correct, minimal visual to a lesson — a diagram or geometric picture — that renders inline in the Obsidian log. Use when an idea is genuinely clearer as a picture: a dependency graph, system/flow, sequence, state machine, tree, comparison, or a spatial/geometric thing (coordinate geometry, number line, vectors, a plot, a physical layout). Outsources authoring+rendering to a maker subagent that verifies the image by looking at it, then you embed the returned file."
+description: "Add a correct, minimal visual to a lesson — a diagram or geometric picture — embedded inline as a PNG. Use when an idea is genuinely clearer as a picture: a dependency graph, system/flow, sequence, state machine, tree, comparison, or a spatial/geometric thing (coordinate geometry, number line, vectors, a plot, a physical layout). Outsources authoring+rendering to a maker subagent that verifies the image by looking at it, then you embed the returned file."
 ---
 
 # Visualize
 
-A picture earns its place only when it shows something words can't — shape, structure, direction, relationship, geometry. This skill produces ONE such picture, guarantees it is **correct** (the maker renders it and looks at it before returning), and drops it into the lesson so it renders inline in the Obsidian `md-log` file.
+A picture earns its place only when it shows something words can't — shape, structure, direction, relationship, geometry. This skill produces ONE such picture, guarantees it is **correct** (the maker renders it and looks at it before returning), and drops it into the lesson as an inline image.
 
 You are the **creative director**. You decide the exact idea and distill it to its fewest carrying elements. A **maker subagent** does the authoring, rendering, visual verification, and saving, then returns a filename. You embed that filename in your reply.
 
@@ -20,7 +20,7 @@ Do NOT visualize when prose or a single equation already carries it. A decorativ
 
 ## Choose the maker
 
-Two makers, discovered from `.pi/agents/`:
+Two maker agents, from this repo's `agents/` folder:
 
 - **`mermaid-maker`** — structural/relational visuals: dependency graphs, flowcharts, sequence/state/ER/class diagrams, trees, mindmaps, timelines. This is the default and fits the dependency-graph pedagogy directly.
 - **`svg-maker`** — spatial/geometric visuals Mermaid can't lay out: exact coordinates, geometry figures, number lines, vectors, plots, custom shapes.
@@ -40,16 +40,18 @@ Keep the idea intact but trust the maker to compose; if your brief lists more th
 
 ## Invoke
 
-Dispatch the maker with the `subagent` tool:
+Dispatch the maker with the `Agent` tool, passing your brief as the prompt:
 
 ```
-subagent(agent="mermaid-maker", task="<your minimal, concrete brief>")
+Agent(subagent_type="mermaid-maker", prompt="<your minimal, concrete brief>")
 ```
 ```
-subagent(agent="svg-maker", task="<your minimal, concrete brief>")
+Agent(subagent_type="svg-maker", prompt="<your minimal, concrete brief>")
 ```
 
-The maker owns its own purpose-built tools (`write_*`/`edit_*`/`render_*`) — it authors the source, renders it to a PNG, **looks at the PNG and iterates until it is correct and clean**, publishes it into the vault with a unique filename, and returns:
+When this repo is installed as a plugin, the agents are listed as `learn:mermaid-maker` and `learn:svg-maker`.
+
+The maker authors the source, renders it to a PNG, **looks at the PNG and iterates until it is correct and clean**, publishes it into `<cwd>/viz/` with a unique filename, and returns:
 
 ```
 RESULT:
@@ -61,18 +63,18 @@ If it returns `RESULT: NONE`, it couldn't make a correct picture of the brief �
 
 ## Embed it in the lesson
 
-Put the embed directly in your teaching reply, using Obsidian's wikilink embed with the returned **filename** (not the full path) and a display width:
+Put the embed directly in your teaching reply as a standard Markdown image, using the path relative to the working directory:
 
 ```
-![[viz-<slug>-<timestamp>.png|500]]
+![<short alt text>](viz/viz-<slug>-<timestamp>.png)
 ```
 
-That's all. The `md-log` extension mirrors your reply text verbatim into the linked `.md`, and Obsidian resolves the embed by filename anywhere in the vault (the maker saves into the project's `viz` folder, which is inside the vault) — so it renders inline in the lesson automatically. Width `|500` is a good default; use larger for dense diagrams. Introduce the visual in a sentence, then let it carry the idea — don't narrate every element back in prose.
+Also give the clickable path on its own line, so he can open it if his viewer doesn't show images inline. If he keeps the lesson in an Obsidian vault that contains `viz/`, use the wikilink embed instead: `![[viz-<slug>-<timestamp>.png|500]]`. Introduce the visual in a sentence, then let it carry the idea — don't narrate every element back in prose.
 
 ## Why this is reliable
 
 - The maker never returns a picture it hasn't **looked at**, so "renders fine but says something false" is caught before it reaches the learner.
 - PNG embed means **what the maker verified is pixel-identical to what the learner sees** — no re-render drift.
-- Unique filenames keep Obsidian's by-filename embed resolution unambiguous.
+- Unique filenames keep embeds unambiguous (including Obsidian's by-filename resolution).
 
-> The makers render through the project's `visual-tools` extension (Mermaid via a bundled `@mermaid-js/mermaid-cli` + installed Chrome; SVG via `rsvg-convert`, fallback ImageMagick). You don't render anything yourself — you only brief the maker and embed the filename it returns.
+> The makers render with Bash (Mermaid via `npx @mermaid-js/mermaid-cli`; SVG via `rsvg-convert`, fallback ImageMagick). You don't render anything yourself — you only brief the maker and embed the filename it returns.

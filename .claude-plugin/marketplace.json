@@ -1,0 +1,16 @@
+{
+  "$schema": "https://www.schemastore.org/claude-code-marketplace.json",
+  "name": "learn",
+  "description": "AI learning system for Claude Code.",
+  "owner": {
+    "name": "houcine-aithammoudi"
+  },
+  "plugins": [
+    {
+      "name": "learn",
+      "description": "Teaching and visualization skills with researcher and diagram-maker agents.",
+      "source": "./",
+      "category": "learning"
+    }
+  ]
+}

@@ -32,6 +32,23 @@ Then open pi in that directory. (Or copy the pieces you want into your existing 
 - A subagent implementation, so the system can spawn the researcher and the visual makers. Recommended: [pi-interactive-subagents](https://github.com/amosblomqvist/pi-interactive-subagents) (tmux only). With it, everything works out of the box. Any other implementation works too, but expect to adapt the agent definitions, e.g. `agents/researcher.md` lists `safe_bash` in its tools, which is specific to that extension.
 - `ask-user-question` — use the copy bundled here. If your setup already has an `ask-user-question` extension, use **this** one in its place. Popups from different extensions serialize through a shared UI lock, which only works when it's the same implementation.
 
+## Claude Code
+
+This branch also works as a Claude Code plugin. The skills and agents are adapted to Claude's built-in tools; the `extensions/` are pi-only and are not used.
+
+```bash
+claude plugin marketplace add houcine-aithammoudi/learn
+claude plugin install learn@learn
+```
+
+What changes compared to pi:
+
+- `quiz` → `AskUserQuestion`, with Claude grading your answer in chat (✓/✗, correct answer, explanation).
+- `ask_user_question` → `AskUserQuestion`.
+- `researcher` uses `WebSearch` / `WebFetch`.
+- `mermaid-maker` and `svg-maker` render with Bash (`npx @mermaid-js/mermaid-cli`, `rsvg-convert` or ImageMagick) and save PNGs to `viz/`.
+- There is no `md-log`: lessons stay in the Claude chat. Visuals are embedded as normal Markdown images.
+
 ## Notes
 
 You can run the system without subagents. The main session does the teaching. You just lose the researcher (truth verification) and the generated visuals.
